@@ -1,5 +1,5 @@
 import TravelStory from "../models/travelStory.model.js"
-import { errorHandler } from "../utils/error.js"
+// import { errorHandler } from "../utils/error.js"
 
 export const addTravelStory = async (req, res,next) => {
     const {title, story, visitedLocation, imageUrl, visitedDate} = req.body //from frontend
@@ -35,3 +35,19 @@ export const addTravelStory = async (req, res,next) => {
         next(error)
     }
  }
+
+export const getAllTravelStory = async(req,res,next)=>{
+    const userId = req.user.id //from verifyUser
+
+    try {
+
+        const travelStories = await TravelStory.find({userId: userId}).sort({
+            isFavorite: -1, //on top
+        })
+
+        res.status(200).json({stories: travelStories})
+        
+    } catch (error) {
+        next(error)
+    }
+}
