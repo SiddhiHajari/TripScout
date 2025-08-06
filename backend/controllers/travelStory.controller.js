@@ -1,6 +1,9 @@
+import path from "path"
 import TravelStory from "../models/travelStory.model.js"
 import { errorHandler } from "../utils/error.js"
+import { fileURLToPath } from "url"
 // import { errorHandler } from "../utils/error.js"
+import fs from "fs"
 
 export const addTravelStory = async (req, res,next) => {
     const {title, story, visitedLocation, imageUrl, visitedDate} = req.body //from frontend
@@ -62,6 +65,41 @@ export const imageUpload = async(req, res, next)=>{
         const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
 
         res.status(201).json({imageUrl})
+    } catch (error) {
+        next(error)
+    }
+}
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename) //its taking tripScout/backend/controllers/ --> wrong path
+
+const rootDir = path.join(__dirname,"..") //its taking tripScout/backend/ --> right path
+export const deleteImage = async(req, res, next)=>{
+    const {imageUrl} = req.query
+
+    if(!imageUrl){
+        return next(errorHandler(400,"ImageUrl parameter is required!"))
+    }
+
+    try {
+        //extract the filename from the imageUrl
+        const filename = path.basename(imageUrl) //basename --> /45754343.png
+
+        //Delete the file path
+        //find out the path
+        const filePath = path.join(rootDir,"uploads",filename) //join dir,uploads and filename --> tripScout/backend/uploads/12234.png
+        console.log(filePath)
+
+        //check if file exists
+        if(!fs.existsSync(filePath)){
+            return next(errorHandler(404,"Image not found!"))
+        }
+
+        //delete the file
+        await fs.promises.unlink(filePath) //delete file using its path
+
+        res.status(200).json({message: "Image deleted successfully!"})
+
     } catch (error) {
         next(error)
     }
