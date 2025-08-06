@@ -1,4 +1,5 @@
 import TravelStory from "../models/travelStory.model.js"
+import { errorHandler } from "../utils/error.js"
 // import { errorHandler } from "../utils/error.js"
 
 export const addTravelStory = async (req, res,next) => {
@@ -47,6 +48,20 @@ export const getAllTravelStory = async(req,res,next)=>{
 
         res.status(200).json({stories: travelStories})
         
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const imageUpload = async(req, res, next)=>{
+    try {
+        if(!req.file){
+            return next(errorHandler(400,"No image uploaded"))
+        }
+
+        const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+
+        res.status(201).json({imageUrl})
     } catch (error) {
         next(error)
     }
