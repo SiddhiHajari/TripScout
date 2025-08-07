@@ -203,3 +203,29 @@ export const updateIsFavourite = async(req, res, next) => {
         next(error)
     }
 }
+
+export const searchTravelStory = async(req, res, next) => {
+    const {query} = req.query //as we are searching for something i.e search variable will work as a query parameter (in backend)
+    const userId = req.user.id
+
+    if(!query){
+        return next(errorHandler(404,"Query is required!"))
+    }
+
+    try {
+        const searchResults = await TravelStory.find({
+            userId: userId,
+            $or: [
+                {title: {$regex: query, $options: "i"}},
+                {story: {$regex: query, $options: "i"}},
+                {visitedLocation: {$regex: query, $options: "i"}} //i for ignoreCase
+            ]
+        }).sort({isFavorite: -1}) //favorite story at top
+
+        res.status(200).json({
+            stories: searchResults
+        })
+    } catch (error) {
+        next(error)
+    }
+}
