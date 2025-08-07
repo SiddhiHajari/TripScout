@@ -6,7 +6,7 @@ import { fileURLToPath } from "url"
 import fs from "fs"
 
 export const addTravelStory = async (req, res,next) => {
-    const {title, story, visitedLocation, imageUrl, visitedDate} = req.body //from frontend
+    const {title, story, visitedLocation, imageUrl, visitedDate} = req.body //from frontend --> destruction(accessing)
 
     const userId = req.user.id //from verifyToken method in utils-->verifyUser
 
@@ -103,4 +103,46 @@ export const deleteImage = async(req, res, next)=>{
     } catch (error) {
         next(error)
     }
+}
+
+export const editTravelStory = async(req, res, next) => {
+    const {id} = req.params //from url (endpoint passed in router)
+    const {title, story, visitedLocation, imageUrl, visitedDate} = req.body
+    const userId = req.user.id //from verifyToken
+
+    //Validate required field
+    if(!title || !story || !visitedLocation || !imageUrl || !visitedDate){
+        return next(errorHandler(400,"All fields are required"))
+    }
+
+     //convert visited date from milliseconds to Date Object -->since date comes in milliseconds
+    const parsedVisitedDate = new Date(parseInt(visitedDate)) //converting that into date object
+
+    try {
+        //based on the id passed in URL fetch that travelStory info from DB
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId})
+
+        if(!travelStory){
+            next(errorHandler(404, "Travel Story not found!"))
+        }
+
+        const placeholderImageUrl = `http://localhost:3000/assets/placeholderImage.jpeg`
+
+        //Updating Travel Story
+        travelStory.title = title
+        travelStory.story = story
+        travelStory.visitedLocation = visitedLocation
+        travelStory.imageUrl = imageUrl || placeholderImageUrl //if there is no image then by default placeholderImage will be stored
+        travelStory.visitedDate = parsedVisitedDate
+
+        await travelStory.save() //saved the updated travelStory in db
+
+        res.status(200).json({
+            story: travelStory,
+            message: "Travel Story Updated Successfully!",
+        })
+    } catch (error) {
+        next(error)
+    }
+
 }

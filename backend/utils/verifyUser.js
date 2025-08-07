@@ -15,7 +15,7 @@ export const verifyToken = (req, res, next) => {
         }
         req.user = user //if everything is correct
 
-        next()
+        next() //will call the next method
     }) //verifies the token with secret key
   
 }

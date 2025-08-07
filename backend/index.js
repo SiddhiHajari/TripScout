@@ -40,6 +40,8 @@ const __dirname = path.dirname(__filename)
 
 app.use("/uploads",express.static(path.join(__dirname,"uploads"))) //since img is a static file
 
+app.use("/assets",express.static(path.join(__dirname,"assets"))) //dirname = assets wala folder
+
 app.use((err, req, res, next)=>{
     const statusCode = err.statusCode || 500
 

@@ -1,6 +1,12 @@
 import express from "express"
 import {verifyToken} from "../utils/verifyUser.js"
-import { addTravelStory, deleteImage, getAllTravelStory, imageUpload } from "../controllers/travelStory.controller.js";
+import { 
+    addTravelStory, 
+    deleteImage, 
+    editTravelStory, 
+    getAllTravelStory, 
+    imageUpload 
+} from "../controllers/travelStory.controller.js";
 import upload from "../multer.js";
 
 
@@ -14,4 +20,5 @@ router.post("/add", verifyToken, addTravelStory)
 
 router.get("/get-all",verifyToken,getAllTravelStory)
 
+router.post("/edit-story/:id",verifyToken,editTravelStory) //here id is passed same id will be passed in controller
 export default router
