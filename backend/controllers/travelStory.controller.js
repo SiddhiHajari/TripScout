@@ -1,4 +1,4 @@
-import path from "path"
+import path, { basename } from "path"
 import TravelStory from "../models/travelStory.model.js"
 import { errorHandler } from "../utils/error.js"
 import { fileURLToPath } from "url"
@@ -145,4 +145,38 @@ export const editTravelStory = async(req, res, next) => {
         next(error)
     }
 
+}
+
+export const deleteTravelStory = async(req, res, next) => {
+    const {id} = req.params
+    const userId = req.user.id
+    try {
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId})
+
+        if(!travelStory){
+            next(errorHandler(404, "travel Story not found"))
+        }
+
+        //delete travel story from database
+        await travelStory.deleteOne({_id: id, userId: userId}) //deletes everything from db, but img will still remain in uploads folder
+
+        //Extract a filename from imageUrl
+        const imageUrl = travelStory.imageUrl
+        const filename = path.basename(imageUrl)
+
+        //delete the file path
+        const filePath = path.join(rootDir,"uploads",filename)
+
+        //check if filePath exists
+        if(!fs.existsSync(filePath)){ //checks if exists
+            return next(errorHandler(404, "Image not found!"))
+        }
+
+        //delete  the file
+       await fs.promises.unlink(filePath)
+
+        res.status(200).json({message: "Travel Story Deleted Successfully!"})
+    } catch (error) {
+        next(error)
+    }
 }
