@@ -5,6 +5,7 @@ import { fileURLToPath } from "url"
 // import { errorHandler } from "../utils/error.js"
 import fs from "fs"
 
+
 export const addTravelStory = async (req, res,next) => {
     const {title, story, visitedLocation, imageUrl, visitedDate} = req.body //from frontend --> destruction(accessing)
 
@@ -176,6 +177,28 @@ export const deleteTravelStory = async(req, res, next) => {
        await fs.promises.unlink(filePath)
 
         res.status(200).json({message: "Travel Story Deleted Successfully!"})
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const updateIsFavourite = async(req, res, next) => {
+    const {id} = req.params
+    const {isFavorite} = req.body //OR const isFavorite = req.body.isFavorite
+    const userId = req.user.id
+
+    try {
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId})
+
+        if(!travelStory){
+            return next(errorHandler(404,"Travel Story not found!"))
+        }
+
+        travelStory.isFavorite = isFavorite //True or false
+
+        await travelStory.save()
+
+        res.status(200).json({story: travelStory, message: "Updated Successfully"})
     } catch (error) {
         next(error)
     }
