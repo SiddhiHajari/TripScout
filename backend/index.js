@@ -9,6 +9,8 @@ import travelStoryRoutes from "./routes/travelStory.route.js"
 import path from "path"
 import { fileURLToPath } from "url"
 
+import cors from "cors"
+
 
 //configure
 dotenv.config() //used to access .env file
@@ -21,6 +23,12 @@ mongoose.connect(process.env.MONGO_URI).then(()=>{
 
 const app = express()
 
+//Enable CORS for frontend (Replace with your frontend URL)
+app.use(cors({
+    origin: "http://localhost:5173", //frontend URL
+    methods: ["GET","POST","PUT","DELETE"], //Allow CRUD Operations
+    credentials: true, //allow cookies and authorization headers
+}))
 app.use(cookieParser()) //to use cookie
 
 //For allowing json obj in req body
